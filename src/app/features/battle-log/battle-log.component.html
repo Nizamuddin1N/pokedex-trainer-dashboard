@@ -1,0 +1,125 @@
+<div class="battle-container">
+  <div class="page-header">
+    <h1><span class="gradient-text">Battle Log</span></h1>
+    <p class="subtitle">Track your battles and performance</p>
+  </div>
+
+  <!-- Stats Overview -->
+  <div class="stats-grid" id="battle-stats">
+    <div class="stat-card win-card">
+      <span class="stat-card-value">{{ battleStats().wins }}</span>
+      <span class="stat-card-label">Wins</span>
+    </div>
+    <div class="stat-card loss-card">
+      <span class="stat-card-value">{{ battleStats().losses }}</span>
+      <span class="stat-card-label">Losses</span>
+    </div>
+    <div class="stat-card rate-card">
+      <span class="stat-card-value">{{ winRate() }}%</span>
+      <span class="stat-card-label">Win Rate</span>
+    </div>
+    <div class="stat-card total-card">
+      <span class="stat-card-value">{{ battleStats().total }}</span>
+      <span class="stat-card-label">Total</span>
+    </div>
+  </div>
+
+  <div class="battle-layout">
+    <!-- Chart + Battle History -->
+    <div class="main-col">
+      <!-- Monthly Chart -->
+      <div class="chart-panel" id="battle-chart">
+        <h2>Monthly Results</h2>
+        <div class="chart-wrapper">
+          <canvas baseChart [type]="'bar'" [data]="chartData()" [options]="chartOptions"></canvas>
+        </div>
+      </div>
+
+      <!-- Battle History -->
+      <div class="history-panel">
+        <div class="history-header">
+          <h2>Battle History</h2>
+          <button class="btn-primary" (click)="showBattleForm.set(true)" id="log-battle-btn">+ Log Battle</button>
+        </div>
+        @for (battle of battles(); track battle.id) {
+          <div class="battle-card" [class.win]="battle.result === 'win'" [class.loss]="battle.result === 'loss'" [id]="'battle-' + battle.id">
+            <div class="battle-result-icon">
+              @if (battle.result === 'win') { 🏆 } @else { 💀 }
+            </div>
+            <div class="battle-info">
+              <span class="opponent-name">vs. {{ battle.opponent_name }}</span>
+              <span class="battle-score">{{ battle.score_trainer }} – {{ battle.score_opponent }}</span>
+            </div>
+            <div class="battle-meta">
+              <span class="battle-result-tag" [class]="battle.result">{{ battle.result | titlecase }}</span>
+              <span class="battle-date">{{ battle.date | date:'mediumDate' }}</span>
+            </div>
+          </div>
+        }
+      </div>
+    </div>
+
+    <!-- Live Feed Sidebar -->
+    <div class="feed-col">
+      <div class="feed-panel" id="live-feed">
+        <h2>⚡ Live Feed</h2>
+        <p class="feed-note">Polling every 5s for new entries</p>
+        @if (battleLog().length) {
+          @for (entry of battleLog(); track entry.id) {
+            <div class="feed-entry" [class]="getSeverityClass(entry.severity)">
+              <span class="feed-time">{{ entry.timestamp | date:'shortTime' }}</span>
+              <span class="feed-msg">{{ entry.message }}</span>
+            </div>
+          }
+        } @else {
+          <p class="feed-empty">No battle log entries yet</p>
+        }
+      </div>
+    </div>
+  </div>
+
+  <!-- Battle Form Modal -->
+  @if (showBattleForm()) {
+    <div class="modal-overlay" (click)="showBattleForm.set(false)">
+      <div class="modal" (click)="$event.stopPropagation()" id="battle-form-modal">
+        <h2>Log New Battle</h2>
+        <form [formGroup]="battleForm" (ngSubmit)="submitBattle()" class="battle-form">
+          <div class="form-group">
+            <label>Opponent Name</label>
+            <input formControlName="opponent_name" class="form-input" placeholder="e.g. Gary Oak" id="opponent-input" />
+          </div>
+          <div class="form-group">
+            <label>Team</label>
+            <select formControlName="team_id" class="form-input" id="team-select">
+              <option [value]="null" disabled>Select team...</option>
+              @for (team of teams(); track team.id) { <option [value]="team.id">{{ team.name }}</option> }
+            </select>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Result</label>
+              <select formControlName="result" class="form-input" id="result-select">
+                <option value="win">Win</option>
+                <option value="loss">Loss</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Date</label>
+              <input type="date" formControlName="date" class="form-input" id="date-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group"><label>Your Score</label><input type="number" formControlName="score_trainer" class="form-input" min="0" /></div>
+            <div class="form-group"><label>Opponent Score</label><input type="number" formControlName="score_opponent" class="form-input" min="0" /></div>
+          </div>
+          <div class="form-actions">
+            <button type="button" class="btn-ghost" (click)="showBattleForm.set(false)">Cancel</button>
+            <button type="submit" class="btn-primary" [disabled]="battleForm.invalid || saving()" id="submit-battle-btn">
+              @if (saving()) { Saving... } @else { Log Battle }
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  }
+</div>
