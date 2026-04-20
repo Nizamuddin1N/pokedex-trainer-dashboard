@@ -1,0 +1,103 @@
+<div class="pokedex-container">
+  <div class="pokedex-header">
+    <h1 id="pokedex-title"><span class="gradient-text">Pokédex</span></h1>
+    <p class="subtitle">Browse, filter, and discover Pokémon</p>
+  </div>
+
+  <!-- Filters Bar -->
+  <div class="filters-bar" id="filters-bar">
+    <div class="search-wrapper">
+      <span class="search-icon">🔍</span>
+      <input type="text" placeholder="Search Pokémon..." [ngModel]="searchTerm()" (ngModelChange)="onSearch($event)" class="search-input" id="pokemon-search-input" />
+    </div>
+    <select class="filter-select" [ngModel]="typeFilter()" (ngModelChange)="onTypeFilter($event)" id="type-filter-select">
+      <option value="">All Types</option>
+      @for (type of availableTypes(); track type) { <option [value]="type">{{ type | titlecase }}</option> }
+    </select>
+    <div class="stat-range">
+      <label>Base Total: {{ statMin() }}–{{ statMax() }}</label>
+      <input type="range" min="0" max="800" [ngModel]="statMin()" (ngModelChange)="onStatMin($event)" class="range-slider" />
+      <input type="range" min="0" max="800" [ngModel]="statMax()" (ngModelChange)="onStatMax($event)" class="range-slider" />
+    </div>
+    <select [ngModel]="pageSize()" (ngModelChange)="onPageSize($event)" class="filter-select" id="page-size-select">
+      <option [value]="10">10 / page</option>
+      <option [value]="25">25 / page</option>
+      <option [value]="50">50 / page</option>
+    </select>
+    @if (selectedType()) {
+      <div class="highlight-indicator">
+        <span>Highlighting vs </span>
+        <app-type-badge [typeName]="selectedType()!" />
+        <button class="clear-btn" (click)="selectedType.set('')">✕</button>
+      </div>
+    }
+  </div>
+
+  @if (selectedRows().length) {
+    <div class="bulk-actions" id="bulk-actions">
+      <span>{{ selectedRows().length }} selected</span>
+      <button class="btn-primary" id="add-to-team-btn">⚡ Add to Team</button>
+      <button class="btn-ghost" (click)="selectedRows.set([])">Clear</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <div class="loading-container"><app-pokeball-spinner /></div>
+  }
+
+  @if (!loading() && pokemon().length) {
+    <div class="table-wrapper" id="pokedex-table-wrapper">
+      <table class="pokedex-table" id="pokedex-table">
+        <thead>
+          <tr>
+            <th class="th-check"><input type="checkbox" (change)="toggleAllRows($event)" /></th>
+            <th>Sprite</th>
+            <th class="th-sort" (click)="onSort('name')">Name {{ getSortIndicator('name') }}</th>
+            <th>Types</th>
+            @for (stat of statColumns; track stat) {
+              <th class="th-sort th-stat" (click)="onSort(stat)">{{ stat | statName }} {{ getSortIndicator(stat) }}</th>
+            }
+            <th class="th-sort th-stat" (click)="onSort('total')">Total {{ getSortIndicator('total') }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (p of pokemon(); track p.id; let i = $index) {
+            <tr class="pokemon-row" [class.selected]="isSelected(p.id)" [class.active]="selectedPokemonId() === p.id"
+                (click)="onRowClick(p)" [appTypeHighlight]="selectedType()" [pokemonTypes]="p.types"
+                [style.animation-delay]="(i * 30) + 'ms'" [id]="'pokemon-row-' + p.id">
+              <td (click)="$event.stopPropagation()"><input type="checkbox" [checked]="isSelected(p.id)" (change)="toggleRow(p.id)" /></td>
+              <td><img [src]="p.id | pokemonSprite" [alt]="p.name" class="sprite-img" loading="lazy" /></td>
+              <td class="td-name"><span class="pid">#{{ p.id }}</span><span class="pname">{{ p.name | titlecase }}</span></td>
+              <td class="td-types">
+                @for (type of p.types; track type) {
+                  <app-type-badge [typeName]="type" (click)="selectedType.set(type); $event.stopPropagation()" />
+                }
+              </td>
+              @for (stat of statColumns; track stat) {
+                <td class="td-stat">
+                  <div class="stat-bar-mini"><div class="stat-fill" [style.width.%]="(p.stats[stat] / 255) * 100" [style.background]="getStatColor(p.stats[stat])"></div></div>
+                  <span class="stat-val">{{ p.stats[stat] }}</span>
+                </td>
+              }
+              <td class="td-stat td-total">{{ getTotalStats(p) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <div class="pagination" id="pagination">
+      <button class="btn-page" [disabled]="currentPage() === 0" (click)="onPageChange(currentPage() - 1)">← Prev</button>
+      <span class="page-info">Page {{ currentPage() + 1 }} of {{ totalPages() }} ({{ filteredCount() }} Pokémon)</span>
+      <button class="btn-page" [disabled]="currentPage() >= totalPages() - 1" (click)="onPageChange(currentPage() + 1)">Next →</button>
+    </div>
+  }
+
+  @if (!loading() && !pokemon().length) {
+    <div class="empty-state"><p>No Pokémon found. Try adjusting your filters.</p></div>
+  }
+
+  @if (selectedPokemonId()) {
+    <app-pokemon-detail-panel [pokemonId]="selectedPokemonId()!" (closed)="selectedPokemonId.set(null)" />
+  }
+</div>
