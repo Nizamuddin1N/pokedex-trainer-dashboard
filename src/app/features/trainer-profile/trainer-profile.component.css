@@ -1,0 +1,46 @@
+.page-header { margin-bottom: 24px; }
+.page-header h1 { font-size: 2rem; font-weight: 800; margin: 0; }
+.gradient-text { background: linear-gradient(135deg, #22c55e, #06b6d4, #6366f1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+.subtitle { color: var(--text-secondary); margin: 4px 0 0; font-size: 0.9rem; }
+
+.trainer-selector { display: flex; gap: 8px; margin-bottom: 24px; flex-wrap: wrap; }
+.trainer-tab { padding: 8px 18px; background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); cursor: pointer; font-size: 0.85rem; transition: all 0.2s; }
+.trainer-tab.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.trainer-tab:hover:not(.active) { border-color: var(--accent); }
+
+.profile-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+@media (max-width: 800px) { .profile-layout { grid-template-columns: 1fr; } }
+
+.profile-card { background: var(--card-bg); border-radius: 16px; padding: 32px; border: 1px solid var(--border-color); text-align: center; }
+.avatar-wrapper { margin-bottom: 16px; }
+.avatar { width: 100px; height: 100px; border-radius: 50%; border: 3px solid var(--accent); }
+.avatar-placeholder { width: 100px; height: 100px; border-radius: 50%; background: linear-gradient(135deg, #6366f1, #8b5cf6); display: flex; align-items: center; justify-content: center; font-size: 2.5rem; font-weight: 800; color: #fff; margin: 0 auto; }
+.profile-card h2 { font-size: 1.4rem; margin: 8px 0 4px; }
+.rank-badge { display: inline-block; padding: 4px 14px; background: linear-gradient(135deg, rgba(99,102,241,0.2), rgba(139,92,246,0.2)); border: 1px solid rgba(99,102,241,0.3); border-radius: 20px; font-size: 0.75rem; font-weight: 600; color: #a78bfa; letter-spacing: 0.5px; }
+.region { color: var(--text-secondary); font-size: 0.85rem; margin: 8px 0 16px; }
+
+.btn-outline { padding: 8px 18px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); cursor: pointer; font-size: 0.82rem; transition: all 0.2s; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); }
+
+.edit-form { display: flex; flex-direction: column; gap: 12px; text-align: left; margin-top: 16px; }
+.form-group { display: flex; flex-direction: column; gap: 4px; }
+.form-group label { font-size: 0.75rem; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; }
+.form-input { padding: 10px 14px; background: var(--input-bg); border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-primary); font-size: 0.85rem; outline: none; }
+.form-input:focus { border-color: var(--accent); }
+.edit-actions { display: flex; gap: 8px; justify-content: flex-end; }
+.btn-primary { padding: 8px 18px; background: linear-gradient(135deg, #6366f1, #8b5cf6); border: none; border-radius: 8px; color: #fff; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+.btn-primary:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-ghost { padding: 8px 18px; background: transparent; border: 1px solid var(--border-color); border-radius: 8px; color: var(--text-secondary); cursor: pointer; }
+
+.stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--border-color); }
+.profile-stat { text-align: center; }
+.stat-value { display: block; font-size: 1.4rem; font-weight: 800; color: var(--text-primary); }
+.stat-label { font-size: 0.7rem; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; }
+
+.teams-overview { display: flex; flex-direction: column; gap: 12px; }
+.teams-overview h2 { font-size: 1.1rem; font-weight: 700; margin: 0; }
+.mini-team-card { background: var(--card-bg); border-radius: 12px; padding: 16px; border: 1px solid var(--border-color); }
+.mini-team-card h3 { font-size: 0.9rem; margin: 0 0 8px; }
+.mini-sprites { display: flex; gap: 4px; }
+.mini-sprite { width: 36px; height: 36px; image-rendering: pixelated; }
+.no-data { color: var(--text-secondary); text-align: center; padding: 24px; }
