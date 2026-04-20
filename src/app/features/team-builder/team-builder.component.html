@@ -1,0 +1,140 @@
+<div class="team-builder-container">
+  <div class="page-header">
+    <h1><span class="gradient-text">Team Builder</span></h1>
+    <p class="subtitle">Build your dream team of 6 Pokémon</p>
+  </div>
+
+  <div class="builder-layout">
+    <!-- Form Panel -->
+    <div class="form-panel">
+      <form [formGroup]="teamForm" (ngSubmit)="saveTeam()" class="team-form" id="team-form">
+        <div class="form-group">
+          <label for="team-name-input">Team Name</label>
+          <input id="team-name-input" formControlName="name" placeholder="Enter team name..." class="form-input" />
+          @if (teamForm.get('name')?.invalid && teamForm.get('name')?.touched) {
+            <span class="error-text">
+              @if (teamForm.get('name')?.errors?.['required']) { Team name is required }
+              @if (teamForm.get('name')?.errors?.['minlength']) { Minimum 3 characters }
+              @if (teamForm.get('name')?.errors?.['maxlength']) { Maximum 30 characters }
+            </span>
+          }
+        </div>
+
+        <!-- Competitive Mode Toggle -->
+        <div class="toggle-group">
+          <label class="toggle-label">
+            <input type="checkbox" [checked]="competitiveMode()" (change)="competitiveMode.set(!competitiveMode())" class="toggle-input" id="competitive-toggle" />
+            <span class="toggle-slider"></span>
+            Competitive Mode
+          </label>
+        </div>
+
+        @if (competitiveMode()) {
+          <div class="form-group competitive-fields">
+            <label>Tier</label>
+            <select formControlName="tier" class="form-input" id="tier-select">
+              <option value="">Select tier...</option>
+              <option value="OU">OU (OverUsed)</option>
+              <option value="UU">UU (UnderUsed)</option>
+              <option value="RU">RU (RarelyUsed)</option>
+              <option value="NU">NU (NeverUsed)</option>
+            </select>
+          </div>
+        }
+
+        <!-- Pokémon Search -->
+        <div class="form-group">
+          <label>Pokémon ({{ selectedPokemon().length }}/6)</label>
+          <div class="search-wrapper">
+            <input
+              type="text"
+              placeholder="Search Pokémon to add..."
+              [value]="searchTerm()"
+              (input)="onSearchInput($any($event.target).value)"
+              (focus)="showSearch.set(true)"
+              class="form-input"
+              id="pokemon-search-autocomplete"
+              [disabled]="selectedPokemon().length >= 6"
+            />
+            @if (showSearch() && searchResults().length) {
+              <div class="search-dropdown" id="search-dropdown">
+                @for (p of searchResults(); track p.id) {
+                  <div class="search-option" (click)="addPokemon(p)" [id]="'search-option-' + p.id">
+                    <img [src]="p.id | pokemonSprite" [alt]="p.name" class="search-sprite" />
+                    <span class="search-name">{{ p.name | titlecase }}</span>
+                    <span class="search-types">
+                      @for (t of p.types; track t) { <app-type-badge [typeName]="t" /> }
+                    </span>
+                  </div>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- Team Slots (drop zone) -->
+        <div class="team-slots" cdkDropList [cdkDropListData]="selectedPokemon()" (cdkDropListDropped)="onDrop($event)" id="team-drop-zone">
+          @for (p of selectedPokemon(); track p.id; let i = $index) {
+            <div class="team-slot filled" cdkDrag [cdkDragData]="p" id="team-slot-{{i}}">
+              <img [src]="p.id | pokemonSprite" [alt]="p.name" class="slot-sprite" />
+              <div class="slot-info">
+                <span class="slot-name">{{ p.name | titlecase }}</span>
+                <span class="slot-types">
+                  @for (t of p.types; track t) { <app-type-badge [typeName]="t" /> }
+                </span>
+              </div>
+              <button class="remove-btn" (click)="removePokemon(p.id)" type="button">✕</button>
+            </div>
+          }
+          @for (empty of [].constructor(6 - selectedPokemon().length); track $index) {
+            <div class="team-slot empty">
+              <span class="empty-label">Empty Slot</span>
+            </div>
+          }
+        </div>
+
+        @if (typeWeaknessWarning()) {
+          <div class="warning-banner" id="type-coverage-warning">⚠ {{ typeWeaknessWarning() }}</div>
+        }
+
+        @if (selectedPokemon().length) {
+          <div class="team-stats-summary">
+            <span>Total Base Stats: <strong>{{ teamTotalStats() }}</strong></span>
+          </div>
+        }
+
+        @if (selectedPokemon().length && typeDistribution().size) {
+          <div class="chart-container" id="type-distribution-chart">
+            <canvas baseChart [type]="'doughnut'" [data]="chartData()" [options]="chartOptions"></canvas>
+          </div>
+        }
+
+        <button type="submit" class="btn-submit" [disabled]="teamForm.invalid || selectedPokemon().length === 0 || saving()" id="save-team-btn">
+          @if (saving()) { Saving... } @else { 💾 Save Team }
+        </button>
+      </form>
+    </div>
+
+    <!-- Existing Teams -->
+    <div class="teams-panel">
+      <h2>Your Teams</h2>
+      @for (team of teams(); track team.id) {
+        <div class="team-card" [id]="'team-card-' + team.id">
+          <div class="team-card-header">
+            <h3>{{ team.name }}</h3>
+            <button class="delete-btn" (click)="deleteTeam(team.id)">🗑</button>
+          </div>
+          <div class="team-pokemon-list">
+            @for (pid of team.pokemon_ids; track pid) {
+              <img [src]="pid | pokemonSprite" [alt]="'Pokemon ' + pid" class="team-pokemon-sprite" />
+            }
+          </div>
+          <span class="team-date">Created {{ team.created_at | date:'mediumDate' }}</span>
+        </div>
+      }
+      @if (!teams().length) {
+        <p class="no-teams">No teams yet. Build your first team!</p>
+      }
+    </div>
+  </div>
+</div>
