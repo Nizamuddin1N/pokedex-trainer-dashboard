@@ -109,7 +109,7 @@ Local Mock Server ──► LocalApiService ──► TrainerStore (BehaviorSubj
 
 ```bash
 # Clone the repository
-git clone <repo-url>
+git clone https://github.com/Nizamuddin1N/pokedex-trainer-dashboard.git
 cd pokedex-app
 
 # Install dependencies
